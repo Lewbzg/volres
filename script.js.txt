@@ -1,0 +1,74 @@
+// Het sterke wachtwoord voor de admin
+const adminPassword = "A1v$B9x#C2dE8!Z3uK7mP0wQnL6sT@Y1v";
+
+// Functie voor registratie
+document.getElementById("registerForm")?.addEventListener("submit", function(event) {
+    event.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (username === "admin" && password === adminPassword) {
+        // Bewaar admin in localStorage
+        localStorage.setItem("admin", JSON.stringify({ username: "admin", password: adminPassword, posts: [] }));
+        alert("Admin account is succesvol aangemaakt!");
+    } else {
+        // Bewaar gewone gebruikers in localStorage
+        localStorage.setItem(username, JSON.stringify({ password: password, posts: [] }));
+        alert("Registratie succesvol! Je kunt nu inloggen.");
+    }
+    window.location.href = "login.html"; // Redirect naar inlogpagina
+});
+
+// Functie voor inloggen
+document.getElementById("loginForm")?.addEventListener("submit", function(event) {
+    event.preventDefault();
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    const admin = JSON.parse(localStorage.getItem("admin"));
+    if (username === admin.username && password === admin.password) {
+        alert("Welkom Admin!");
+        localStorage.setItem("loggedInUser", "admin");
+        window.location.href = "admin.html"; // Redirect naar adminpagina
+    } else {
+        const userData = JSON.parse(localStorage.getItem(username));
+        if (userData && userData.password === password) {
+            alert("Inloggen succesvol!");
+            localStorage.setItem("loggedInUser", username);
+            window.location.href = "index.html"; // Redirect naar feedpagina
+        } else {
+            alert("Onjuiste gebruikersnaam of wachtwoord!");
+        }
+    }
+});
+
+// Functie om berichten van de ingelogde gebruiker weer te geven
+function displayUserPosts() {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    const userData = JSON.parse(localStorage.getItem(loggedInUser));
+
+    if (!userData) {
+        window.location.href = "login.html"; // Als er geen ingelogde gebruiker is, stuur ze naar inloggen
+        return;
+    }
+
+    const postsContainer = document.getElementById("posts");
+    postsContainer.innerHTML = ""; // Maak het berichtgebied leeg
+
+    // Weergave van berichten voor de ingelogde gebruiker
+    userData.posts.forEach((post, index) => {
+        const postDiv = document.createElement("div");
+        postDiv.classList.add("post");
+
+        const postContent = document.createElement("p");
+        postContent.textContent = post;
+        postDiv.appendChild(postContent);
+
+        postsContainer.appendChild(postDiv);
+    });
+}
+
+// Toon berichten voor de ingelogde gebruiker op de homepage
+if (localStorage.getItem("loggedInUser")) {
+    displayUserPosts(); // Gebruikersberichten weergeven op de hoofdpagina
+}
